@@ -187,8 +187,8 @@ class Game {
   checkWinner() {
     const alivePlayers = Array.from(this.players.values()).filter(p => p.isAlive && !p.isVoda);
 
+    // Voda wins ONLY if all players are eliminated
     if (alivePlayers.length === 0) {
-      // Voda wins
       const voda = this.players.get(this.vodaId);
       if (voda) {
         this.winner = { id: voda.id, name: voda.name };
@@ -196,12 +196,7 @@ class Game {
       return true;
     }
 
-    if (alivePlayers.length === 1 && this.players.size > 2) {
-      // Last survivor becomes new voda
-      this.winner = { id: alivePlayers[0].id, name: alivePlayers[0].name };
-      return true;
-    }
-
+    // Game continues until time runs out - survivors win by surviving!
     return false;
   }
 

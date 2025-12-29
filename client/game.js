@@ -917,14 +917,12 @@ function botThrow() {
 function checkBotWinner() {
   const alivePlayers = botGame.players.filter(p => p.isAlive && !p.isVoda);
 
+  // Voda wins ONLY if all players eliminated
   if (alivePlayers.length === 0) {
-    // Voda wins round
     const voda = botGame.players.find(p => p.isVoda);
     showRoundWinner(voda);
-  } else if (alivePlayers.length === 1 && botGame.players.length > 2) {
-    // Last survivor wins
-    showRoundWinner(alivePlayers[0]);
   }
+  // Otherwise game continues until time runs out!
 }
 
 function endRoundByTime() {

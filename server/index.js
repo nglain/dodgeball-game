@@ -23,10 +23,13 @@ io.on('connection', (socket) => {
   console.log('Player connected:', socket.id);
 
   // Create room
-  socket.on('createRoom', (playerName) => {
+  socket.on('createRoom', (data) => {
+    const playerName = data.playerName || data;
+    const playerColor = data.playerColor || '#FF0000';
+
     const roomCode = generateRoomCode();
     const game = new Game(roomCode);
-    game.addPlayer(socket.id, playerName);
+    game.addPlayer(socket.id, playerName, playerColor);
     rooms.set(roomCode, game);
     socket.join(roomCode);
     socket.roomCode = roomCode;
@@ -40,25 +43,25 @@ io.on('connection', (socket) => {
   });
 
   // Join room
-  socket.on('joinRoom', ({ roomCode, playerName }) => {
+  socket.on('joinRoom', ({ roomCode, playerName, playerColor }) => {
     const game = rooms.get(roomCode);
 
     if (!game) {
-      socket.emit('error', { message: 'Room not found' });
+      socket.emit('error', { message: 'Комната не найдена' });
       return;
     }
 
     if (game.players.size >= 4) {
-      socket.emit('error', { message: 'Room is full (max 4 players)' });
+      socket.emit('error', { message: 'Комната полная (макс 4 игрока)' });
       return;
     }
 
     if (game.isStarted) {
-      socket.emit('error', { message: 'Game already started' });
+      socket.emit('error', { message: 'Игра уже началась' });
       return;
     }
 
-    game.addPlayer(socket.id, playerName);
+    game.addPlayer(socket.id, playerName, playerColor || '#FF0000');
     socket.join(roomCode);
     socket.roomCode = roomCode;
 

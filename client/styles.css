@@ -209,6 +209,33 @@ h2 {
   color: #1a1a2e;
 }
 
+/* Color Picker */
+.color-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.color-option {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.color-option:hover {
+  transform: scale(1.15);
+}
+
+.color-option.selected {
+  border-color: white;
+  box-shadow: 0 0 15px rgba(255,255,255,0.5);
+  transform: scale(1.1);
+}
+
 #playerList {
   display: flex;
   flex-wrap: wrap;

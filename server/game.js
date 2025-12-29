@@ -24,7 +24,7 @@ class Game {
     this.loopInterval = null;
   }
 
-  addPlayer(id, name) {
+  addPlayer(id, name, color) {
     const index = this.players.size;
     const spawn = SPAWN_POSITIONS[index];
 
@@ -33,7 +33,7 @@ class Game {
       name,
       x: spawn.x,
       y: spawn.y,
-      color: COLORS[index],
+      color: color || COLORS[index],
       isAlive: true,
       isVoda: false,
       direction: { x: 0, y: 0 }

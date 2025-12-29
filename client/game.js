@@ -30,9 +30,15 @@ let botGame = null;
 // Bot settings
 let botSettings = {
   playerName: 'Игрок',
+  playerColor: '#FF0000',
   botCount: 2,
   roundTime: 60,
   roundCount: 3
+};
+
+// Online settings
+let onlineSettings = {
+  playerColor: '#FF0000'
 };
 
 // Game stats
@@ -180,6 +186,24 @@ document.querySelectorAll('.num-btn').forEach(btn => {
   });
 });
 
+// Color picker - Bot
+document.getElementById('botColorPicker').addEventListener('click', (e) => {
+  if (e.target.classList.contains('color-option')) {
+    document.querySelectorAll('#botColorPicker .color-option').forEach(c => c.classList.remove('selected'));
+    e.target.classList.add('selected');
+    botSettings.playerColor = e.target.dataset.color;
+  }
+});
+
+// Color picker - Online
+document.getElementById('onlineColorPicker').addEventListener('click', (e) => {
+  if (e.target.classList.contains('color-option')) {
+    document.querySelectorAll('#onlineColorPicker .color-option').forEach(c => c.classList.remove('selected'));
+    e.target.classList.add('selected');
+    onlineSettings.playerColor = e.target.dataset.color;
+  }
+});
+
 document.getElementById('btnStartBot').addEventListener('click', () => {
   botSettings.playerName = document.getElementById('botPlayerName').value.trim() || 'Игрок';
   botSettings.botCount = parseInt(document.getElementById('botCount').textContent);
@@ -190,15 +214,15 @@ document.getElementById('btnStartBot').addEventListener('click', () => {
 });
 
 document.getElementById('btnCreate').addEventListener('click', () => {
-  const name = document.getElementById('playerName').value.trim() || 'Player';
-  socket.emit('createRoom', name);
+  const name = document.getElementById('playerName').value.trim() || 'Игрок';
+  socket.emit('createRoom', { playerName: name, playerColor: onlineSettings.playerColor });
 });
 
 document.getElementById('btnJoin').addEventListener('click', () => {
-  const name = document.getElementById('playerName').value.trim() || 'Player';
+  const name = document.getElementById('playerName').value.trim() || 'Игрок';
   const code = document.getElementById('roomCode').value.trim().toUpperCase();
   if (code) {
-    socket.emit('joinRoom', { roomCode: code, playerName: name });
+    socket.emit('joinRoom', { roomCode: code, playerName: name, playerColor: onlineSettings.playerColor });
   }
 });
 
@@ -622,7 +646,7 @@ function startBotGame() {
       name: botSettings.playerName,
       x: SPAWN_POSITIONS[0].x,
       y: SPAWN_POSITIONS[0].y,
-      color: getRainbowColor(0),
+      color: botSettings.playerColor,
       isAlive: true,
       isVoda: false,
       direction: { x: 0, y: 0 }

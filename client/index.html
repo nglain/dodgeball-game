@@ -25,6 +25,18 @@
         <input type="text" id="botPlayerName" placeholder="Игрок" maxlength="12">
       </div>
       <div class="setting-row">
+        <label>Твой цвет:</label>
+        <div class="color-picker" id="botColorPicker">
+          <div class="color-option selected" data-color="#FF0000" style="background: #FF0000"></div>
+          <div class="color-option" data-color="#FF7F00" style="background: #FF7F00"></div>
+          <div class="color-option" data-color="#FFFF00" style="background: #FFFF00"></div>
+          <div class="color-option" data-color="#00FF00" style="background: #00FF00"></div>
+          <div class="color-option" data-color="#0000FF" style="background: #0000FF"></div>
+          <div class="color-option" data-color="#4B0082" style="background: #4B0082"></div>
+          <div class="color-option" data-color="#9400D3" style="background: #9400D3"></div>
+        </div>
+      </div>
+      <div class="setting-row">
         <label>Количество ботов:</label>
         <div class="number-selector">
           <button class="num-btn" data-target="botCount" data-action="minus">-</button>
@@ -56,8 +68,23 @@
   <!-- Online Menu -->
   <div id="onlineMenu" class="screen hidden">
     <h2>Онлайн игра</h2>
-    <div class="input-group">
-      <input type="text" id="playerName" placeholder="Твоё имя" maxlength="12">
+    <div class="settings-form">
+      <div class="setting-row">
+        <label>Твой ник:</label>
+        <input type="text" id="playerName" placeholder="Игрок" maxlength="12">
+      </div>
+      <div class="setting-row">
+        <label>Твой цвет:</label>
+        <div class="color-picker" id="onlineColorPicker">
+          <div class="color-option selected" data-color="#FF0000" style="background: #FF0000"></div>
+          <div class="color-option" data-color="#FF7F00" style="background: #FF7F00"></div>
+          <div class="color-option" data-color="#FFFF00" style="background: #FFFF00"></div>
+          <div class="color-option" data-color="#00FF00" style="background: #00FF00"></div>
+          <div class="color-option" data-color="#0000FF" style="background: #0000FF"></div>
+          <div class="color-option" data-color="#4B0082" style="background: #4B0082"></div>
+          <div class="color-option" data-color="#9400D3" style="background: #9400D3"></div>
+        </div>
+      </div>
     </div>
     <div class="menu-buttons">
       <button id="btnCreate" class="menu-btn">Создать комнату</button>

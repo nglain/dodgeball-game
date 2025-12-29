@@ -174,7 +174,7 @@ document.querySelectorAll('.num-btn').forEach(btn => {
     let value = parseInt(el.textContent);
 
     const limits = {
-      botCount: { min: 1, max: 3 },
+      botCount: { min: 1, max: 4 },
       roundTime: { min: 15, max: 180 },
       roundCount: { min: 1, max: 10 },
       lobbyRoundTime: { min: 15, max: 180 }
@@ -677,7 +677,8 @@ const SPAWN_POSITIONS = [
   { x: 100, y: 300 },
   { x: 700, y: 150 },
   { x: 700, y: 450 },
-  { x: 400, y: 100 }
+  { x: 400, y: 100 },
+  { x: 400, y: 500 }
 ];
 
 function cleanupGame() {
@@ -926,7 +927,13 @@ function checkBotWinner() {
 }
 
 function endRoundByTime() {
-  // Time's up - voda wins if any players left, otherwise survivor with most health wins
+  // Stop timer first!
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  // Time's up - survivors win, or voda if no survivors
   const voda = botGame.players.find(p => p.isVoda);
   const alivePlayers = botGame.players.filter(p => p.isAlive && !p.isVoda);
 
@@ -940,12 +947,23 @@ function endRoundByTime() {
 }
 
 function showRoundWinner(winner) {
+  // Stop all intervals
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  if (botAIInterval) {
+    clearInterval(botAIInterval);
+    botAIInterval = null;
+  }
+
   // Add bonus point to winner
   gameStats.scores[winner.id]++;
 
   winnerText.textContent = `${winner.name} победил раунд!`;
 
   if (gameStats.currentRound >= gameStats.totalRounds) {
+    // Last round - show final results then go to menu
     gameOverSubtext.textContent = 'Игра окончена!';
     gameOverModal.classList.remove('hidden');
 
@@ -954,6 +972,7 @@ function showRoundWinner(winner) {
       showFinalResults();
     }, 2000);
   } else {
+    // More rounds - continue
     gameOverSubtext.textContent = `Следующий раунд через 3 секунды...`;
     gameOverModal.classList.remove('hidden');
 
@@ -984,6 +1003,16 @@ function nextRound(newVodaId) {
 
   botGame.vodaId = newVodaId;
   resetBotBall();
+
+  // Restart timers
+  timerInterval = setInterval(() => {
+    gameStats.timeLeft--;
+    if (gameStats.timeLeft <= 0) {
+      endRoundByTime();
+    }
+  }, 1000);
+
+  botAIInterval = setInterval(botAI, 1200 + Math.random() * 800);
 }
 
 function showFinalResults() {

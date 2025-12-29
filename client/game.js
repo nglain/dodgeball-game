@@ -1011,6 +1011,12 @@ function showFinalResults() {
   }).join('');
 
   finalResultsModal.classList.remove('hidden');
+
+  // Auto return to menu after 5 seconds
+  setTimeout(() => {
+    finalResultsModal.classList.add('hidden');
+    showScreen('menu');
+  }, 5000);
 }
 
 // Initialize

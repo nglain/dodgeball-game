@@ -41,6 +41,9 @@ let onlineSettings = {
   playerColor: '#FF0000'
 };
 
+// Host status
+let isHost = false;
+
 // Game stats
 let gameStats = {
   currentRound: 1,
@@ -173,7 +176,8 @@ document.querySelectorAll('.num-btn').forEach(btn => {
     const limits = {
       botCount: { min: 1, max: 3 },
       roundTime: { min: 15, max: 180 },
-      roundCount: { min: 1, max: 10 }
+      roundCount: { min: 1, max: 10 },
+      lobbyRoundTime: { min: 15, max: 180 }
     };
 
     if (action === 'plus' && value < limits[target].max) {
@@ -227,7 +231,8 @@ document.getElementById('btnJoin').addEventListener('click', () => {
 });
 
 document.getElementById('btnStart').addEventListener('click', () => {
-  socket.emit('startGame');
+  const roundTime = parseInt(document.getElementById('lobbyRoundTime').textContent);
+  socket.emit('startGame', { roundTime });
 });
 
 document.getElementById('btnLeaveLobby').addEventListener('click', () => {
@@ -252,14 +257,18 @@ document.getElementById('btnBackToMenu').addEventListener('click', () => {
 // Socket events
 socket.on('roomCreated', (data) => {
   myId = data.playerId;
+  isHost = true;
   document.getElementById('lobbyCode').textContent = data.roomCode;
+  document.getElementById('hostSettings').classList.remove('hidden');
   updatePlayerList(data.players);
   showScreen('lobby');
 });
 
 socket.on('roomJoined', (data) => {
   myId = data.playerId;
+  isHost = false;
   document.getElementById('lobbyCode').textContent = data.roomCode;
+  document.getElementById('hostSettings').classList.add('hidden');
   updatePlayerList(data.players);
   showScreen('lobby');
 });
@@ -272,8 +281,29 @@ socket.on('playerLeft', (data) => {
   updatePlayerList(data.players);
 });
 
-socket.on('gameStarted', (state) => {
-  gameState = state;
+socket.on('gameStarted', (data) => {
+  gameState = data.state || data;
+  gameStats.timeLeft = data.roundTime || 60;
+  gameStats.totalRounds = 1;
+  gameStats.currentRound = 1;
+
+  // Initialize scores
+  gameStats.scores = {};
+  if (gameState.players) {
+    gameState.players.forEach(p => {
+      gameStats.scores[p.id] = 0;
+    });
+  }
+
+  // Start timer
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    gameStats.timeLeft--;
+    if (gameStats.timeLeft <= 0) {
+      clearInterval(timerInterval);
+    }
+  }, 1000);
+
   showScreen('gameScreen');
   gameLoop();
 });
@@ -290,6 +320,21 @@ socket.on('roundEnd', (data) => {
   }, 3000);
 });
 
+socket.on('gameEnd', (data) => {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  winnerText.textContent = data.message;
+  gameOverSubtext.textContent = 'Игра окончена!';
+  gameOverModal.classList.remove('hidden');
+
+  setTimeout(() => {
+    gameOverModal.classList.add('hidden');
+    showScreen('menu');
+  }, 4000);
+});
+
 socket.on('error', (data) => {
   errorText.textContent = data.message;
   errorModal.classList.remove('hidden');
@@ -297,8 +342,8 @@ socket.on('error', (data) => {
 
 function updatePlayerList(players) {
   const list = document.getElementById('playerList');
-  list.innerHTML = players.map((p, i) =>
-    `<span class="player-tag" style="background: ${getRainbowColor(i)}">${p.name}</span>`
+  list.innerHTML = players.map(p =>
+    `<span class="player-tag" style="background: ${p.color}">${p.name}</span>`
   ).join('');
 
   const startBtn = document.getElementById('btnStart');
@@ -482,58 +527,27 @@ function render() {
   // Players
   state.players.forEach(player => {
     if (!player.isAlive) {
-      // Ghost effect for eliminated players
       ctx.globalAlpha = 0.3;
     }
 
-    // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.beginPath();
-    ctx.ellipse(player.x + 3, player.y + 5, PLAYER_RADIUS, PLAYER_RADIUS * 0.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Body with gradient
-    const playerGradient = ctx.createRadialGradient(
-      player.x - 5, player.y - 5, 0,
-      player.x, player.y, PLAYER_RADIUS
-    );
-    playerGradient.addColorStop(0, lightenColor(player.color, 30));
-    playerGradient.addColorStop(1, player.color);
-    ctx.fillStyle = playerGradient;
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, PLAYER_RADIUS, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Voda indicator (crown effect)
-    if (player.isVoda) {
-      ctx.strokeStyle = '#FFD700';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(player.x, player.y, PLAYER_RADIUS + 6, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Crown
-      ctx.fillStyle = '#FFD700';
-      ctx.font = '16px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('👑', player.x, player.y - PLAYER_RADIUS - 12);
-    }
+    // Draw stickman
+    drawStickman(player.x, player.y, player.color, player.isVoda);
 
     // Name with background
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    const nameWidth = ctx.measureText(player.name).width + 10;
-    ctx.fillRect(player.x - nameWidth / 2, player.y - PLAYER_RADIUS - 28, nameWidth, 16);
-
-    ctx.fillStyle = 'white';
     ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(player.name, player.x, player.y - PLAYER_RADIUS - 16);
+    const nameWidth = ctx.measureText(player.name).width + 10;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(player.x - nameWidth / 2, player.y - 55, nameWidth, 16);
+
+    ctx.fillStyle = 'white';
+    ctx.fillText(player.name, player.x, player.y - 43);
 
     // You indicator
     const playerId = isBot ? 'player' : myId;
     if (player.id === playerId) {
       ctx.fillStyle = '#4ECDC4';
-      ctx.fillText('(ты)', player.x, player.y + 5);
+      ctx.fillText('(ты)', player.x, player.y + 45);
     }
 
     ctx.globalAlpha = 1;
@@ -602,6 +616,58 @@ function lightenColor(color, percent) {
     (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
     (B < 255 ? (B < 1 ? 0 : B) : 255)
   ).toString(16).slice(1);
+}
+
+// Draw stickman
+function drawStickman(x, y, color, isVoda) {
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+
+  // Head
+  ctx.beginPath();
+  ctx.arc(x, y - 25, 10, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Body
+  ctx.beginPath();
+  ctx.moveTo(x, y - 15);
+  ctx.lineTo(x, y + 10);
+  ctx.stroke();
+
+  // Arms
+  ctx.beginPath();
+  ctx.moveTo(x - 15, y - 5);
+  ctx.lineTo(x, y - 10);
+  ctx.lineTo(x + 15, y - 5);
+  ctx.stroke();
+
+  // Legs
+  ctx.beginPath();
+  ctx.moveTo(x, y + 10);
+  ctx.lineTo(x - 12, y + 35);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(x, y + 10);
+  ctx.lineTo(x + 12, y + 35);
+  ctx.stroke();
+
+  // Voda crown
+  if (isVoda) {
+    ctx.fillStyle = '#FFD700';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('👑', x, y - 40);
+
+    // Golden glow
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y - 5, 30, 0, Math.PI * 2);
+    ctx.stroke();
+  }
 }
 
 // ========== BOT MODE ==========
@@ -704,9 +770,9 @@ function startBotGame() {
 }
 
 function updateBotGame(playerDir) {
-  // Update player movement
+  // Update player movement (voda cannot move!)
   const player = botGame.players.find(p => p.id === 'player');
-  if (player && player.isAlive) {
+  if (player && player.isAlive && !player.isVoda) {
     player.x = Math.max(PLAYER_RADIUS, Math.min(GAME_WIDTH - PLAYER_RADIUS, player.x + playerDir.x * PLAYER_SPEED));
     player.y = Math.max(PLAYER_RADIUS, Math.min(GAME_HEIGHT - PLAYER_RADIUS, player.y + playerDir.y * PLAYER_SPEED));
   }

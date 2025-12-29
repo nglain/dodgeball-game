@@ -101,6 +101,19 @@
   <div id="lobby" class="screen hidden">
     <h2>Комната: <span id="lobbyCode"></span></h2>
     <div id="playerList"></div>
+
+    <!-- Host settings -->
+    <div id="hostSettings" class="settings-form hidden">
+      <div class="setting-row">
+        <label>Время раунда (сек):</label>
+        <div class="number-selector">
+          <button class="num-btn" data-target="lobbyRoundTime" data-action="minus">-</button>
+          <span id="lobbyRoundTime">60</span>
+          <button class="num-btn" data-target="lobbyRoundTime" data-action="plus">+</button>
+        </div>
+      </div>
+    </div>
+
     <p class="hint">Ждём игроков (мин. 2, макс. 4)</p>
     <button id="btnStart" class="menu-btn" disabled>Начать игру</button>
     <button id="btnLeaveLobby" class="back-btn">Выйти</button>

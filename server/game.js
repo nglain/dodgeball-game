@@ -98,8 +98,18 @@ class Game {
   movePlayer(id, direction) {
     const player = this.players.get(id);
     if (!player || !player.isAlive) return;
+    // Voda cannot move!
+    if (player.isVoda) return;
 
     player.direction = direction;
+  }
+
+  getSurvivors() {
+    return Array.from(this.players.values()).filter(p => p.isAlive && !p.isVoda);
+  }
+
+  getVoda() {
+    return this.players.get(this.vodaId);
   }
 
   throwBall(id, target) {

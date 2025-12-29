@@ -79,29 +79,61 @@ io.on('connection', (socket) => {
   });
 
   // Start game
-  socket.on('startGame', () => {
+  socket.on('startGame', (settings) => {
     const game = rooms.get(socket.roomCode);
     if (!game) return;
 
     if (game.players.size < 2) {
-      socket.emit('error', { message: 'Need at least 2 players' });
+      socket.emit('error', { message: 'Нужно минимум 2 игрока' });
       return;
     }
 
+    const roundTime = (settings && settings.roundTime) || 60;
+    game.roundTime = roundTime;
+    game.timeLeft = roundTime;
+
     game.start();
-    io.to(socket.roomCode).emit('gameStarted', game.getState());
+    io.to(socket.roomCode).emit('gameStarted', {
+      state: game.getState(),
+      roundTime: roundTime
+    });
 
     // Start game loop
     game.loopInterval = setInterval(() => {
       game.update();
       io.to(socket.roomCode).emit('gameState', game.getState());
 
+      // Check time
+      game.timeLeft -= 1/60;
+      if (game.timeLeft <= 0) {
+        // Time's up - survivors win!
+        const survivors = game.getSurvivors();
+        if (survivors.length > 0) {
+          io.to(socket.roomCode).emit('gameEnd', {
+            winners: survivors,
+            message: survivors.length === 1
+              ? `${survivors[0].name} победил!`
+              : `Выжили: ${survivors.map(s => s.name).join(', ')}`
+          });
+        } else {
+          const voda = game.getVoda();
+          io.to(socket.roomCode).emit('gameEnd', {
+            winners: [voda],
+            message: `${voda.name} (вода) победил!`
+          });
+        }
+        clearInterval(game.loopInterval);
+        game.isStarted = false;
+      }
+
       if (game.checkWinner()) {
-        io.to(socket.roomCode).emit('roundEnd', {
-          winner: game.winner,
-          players: game.getPlayersInfo()
+        const voda = game.getVoda();
+        io.to(socket.roomCode).emit('gameEnd', {
+          winners: [voda],
+          message: `${voda.name} выбил всех!`
         });
-        game.newRound();
+        clearInterval(game.loopInterval);
+        game.isStarted = false;
       }
     }, 1000 / 60); // 60 FPS
   });

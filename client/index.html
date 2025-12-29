@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Вышибалы Online</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Main Menu -->
+  <div id="menu" class="screen">
+    <h1>ВЫШИБАЛЫ</h1>
+    <div class="menu-buttons">
+      <button id="btnBot" class="menu-btn">Играть с Ботом</button>
+      <button id="btnOnline" class="menu-btn">Онлайн</button>
+    </div>
+  </div>
+
+  <!-- Bot Settings Menu -->
+  <div id="botSettings" class="screen hidden">
+    <h2>Настройки игры</h2>
+    <div class="settings-form">
+      <div class="setting-row">
+        <label>Твой ник:</label>
+        <input type="text" id="botPlayerName" placeholder="Игрок" maxlength="12">
+      </div>
+      <div class="setting-row">
+        <label>Количество ботов:</label>
+        <div class="number-selector">
+          <button class="num-btn" data-target="botCount" data-action="minus">-</button>
+          <span id="botCount">2</span>
+          <button class="num-btn" data-target="botCount" data-action="plus">+</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <label>Время раунда (сек):</label>
+        <div class="number-selector">
+          <button class="num-btn" data-target="roundTime" data-action="minus">-</button>
+          <span id="roundTime">60</span>
+          <button class="num-btn" data-target="roundTime" data-action="plus">+</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <label>Количество раундов:</label>
+        <div class="number-selector">
+          <button class="num-btn" data-target="roundCount" data-action="minus">-</button>
+          <span id="roundCount">3</span>
+          <button class="num-btn" data-target="roundCount" data-action="plus">+</button>
+        </div>
+      </div>
+    </div>
+    <button id="btnStartBot" class="menu-btn">Начать игру</button>
+    <button id="btnBackBot" class="back-btn">Назад</button>
+  </div>
+
+  <!-- Online Menu -->
+  <div id="onlineMenu" class="screen hidden">
+    <h2>Онлайн игра</h2>
+    <div class="input-group">
+      <input type="text" id="playerName" placeholder="Твоё имя" maxlength="12">
+    </div>
+    <div class="menu-buttons">
+      <button id="btnCreate" class="menu-btn">Создать комнату</button>
+      <div class="or-divider">или</div>
+      <div class="input-group">
+        <input type="text" id="roomCode" placeholder="Код комнаты" maxlength="6">
+        <button id="btnJoin" class="menu-btn small">Войти</button>
+      </div>
+    </div>
+    <button id="btnBackOnline" class="back-btn">Назад</button>
+  </div>
+
+  <!-- Lobby -->
+  <div id="lobby" class="screen hidden">
+    <h2>Комната: <span id="lobbyCode"></span></h2>
+    <div id="playerList"></div>
+    <p class="hint">Ждём игроков (мин. 2, макс. 4)</p>
+    <button id="btnStart" class="menu-btn" disabled>Начать игру</button>
+    <button id="btnLeaveLobby" class="back-btn">Выйти</button>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="gameScreen" class="screen hidden">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Stats Panel -->
+    <div id="statsPanel">
+      <div id="timerDisplay">
+        <span id="timerIcon">⏱</span>
+        <span id="timerValue">60</span>
+      </div>
+      <div id="roundDisplay">Раунд: <span id="currentRound">1</span>/<span id="totalRounds">3</span></div>
+      <div id="scoreBoard"></div>
+    </div>
+
+    <div id="mobileControls" class="hidden">
+      <div id="joystick">
+        <div id="joystickKnob"></div>
+      </div>
+      <button id="throwBtn">БРОСОК</button>
+    </div>
+    <div id="gameInfo">
+      <span id="statusText"></span>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div id="gameOverModal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="winnerText"></h2>
+      <p id="gameOverSubtext">Следующий раунд через 3 секунды...</p>
+    </div>
+  </div>
+
+  <!-- Final Results Modal -->
+  <div id="finalResultsModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Игра окончена!</h2>
+      <div id="finalStats"></div>
+      <button id="btnPlayAgain" class="menu-btn">Играть снова</button>
+      <button id="btnBackToMenu" class="back-btn">В меню</button>
+    </div>
+  </div>
+
+  <!-- Error Modal -->
+  <div id="errorModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Ошибка</h3>
+      <p id="errorText"></p>
+      <button id="btnCloseError" class="menu-btn small">OK</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

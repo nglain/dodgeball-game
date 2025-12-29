@@ -987,10 +987,13 @@ function nextRound(newVodaId) {
 }
 
 function showFinalResults() {
+  // Save players before cleanup
+  const players = [...botGame.players];
+
   cleanupGame();
 
   // Sort by score
-  const sortedPlayers = [...botGame.players].sort((a, b) =>
+  const sortedPlayers = players.sort((a, b) =>
     gameStats.scores[b.id] - gameStats.scores[a.id]
   );
 

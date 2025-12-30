@@ -1,6 +1,18 @@
 // Game Client
 const socket = io();
 
+// Check if New Year theme is active (until January 19, 2025)
+const now = new Date();
+const newYearEnd = new Date('2025-01-19T23:59:59');
+const isNewYear = now <= newYearEnd;
+
+// Apply theme class to body
+if (isNewYear) {
+  document.body.classList.add('new-year-theme');
+} else {
+  document.body.classList.remove('new-year-theme');
+}
+
 // Game constants
 const GAME_WIDTH = 800;
 const GAME_HEIGHT = 600;
@@ -493,30 +505,41 @@ function render() {
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-  // Winter background with gradient
+  // Background with gradient
   const gradient = ctx.createLinearGradient(0, 0, GAME_WIDTH, GAME_HEIGHT);
-  gradient.addColorStop(0, '#0a1628');
-  gradient.addColorStop(1, '#1a3a5c');
+  if (isNewYear) {
+    gradient.addColorStop(0, '#0a1628');
+    gradient.addColorStop(1, '#1a3a5c');
+  } else {
+    gradient.addColorStop(0, '#1a1a2e');
+    gradient.addColorStop(1, '#16213e');
+  }
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-  // Draw snowflakes (behind everything)
-  drawSnowflakes();
+  // New Year decorations
+  if (isNewYear) {
+    drawSnowflakes();
+    drawChristmasTree(80, 120);
+    drawChristmasTree(GAME_WIDTH - 80, 120);
+    drawChristmasTree(80, GAME_HEIGHT - 80);
+    drawChristmasTree(GAME_WIDTH - 80, GAME_HEIGHT - 80);
+  }
 
-  // Christmas trees in corners
-  drawChristmasTree(80, 120);
-  drawChristmasTree(GAME_WIDTH - 80, 120);
-  drawChristmasTree(80, GAME_HEIGHT - 80);
-  drawChristmasTree(GAME_WIDTH - 80, GAME_HEIGHT - 80);
-
-  // Field border with festive red/green
+  // Field border
   ctx.lineWidth = 4;
   const borderGradient = ctx.createLinearGradient(0, 0, GAME_WIDTH, 0);
-  borderGradient.addColorStop(0, '#FF0000');
-  borderGradient.addColorStop(0.25, '#00FF00');
-  borderGradient.addColorStop(0.5, '#FF0000');
-  borderGradient.addColorStop(0.75, '#00FF00');
-  borderGradient.addColorStop(1, '#FF0000');
+  if (isNewYear) {
+    borderGradient.addColorStop(0, '#FF0000');
+    borderGradient.addColorStop(0.25, '#00FF00');
+    borderGradient.addColorStop(0.5, '#FF0000');
+    borderGradient.addColorStop(0.75, '#00FF00');
+    borderGradient.addColorStop(1, '#FF0000');
+  } else {
+    RAINBOW_COLORS.forEach((color, i) => {
+      borderGradient.addColorStop(i / (RAINBOW_COLORS.length - 1), color);
+    });
+  }
   ctx.strokeStyle = borderGradient;
   ctx.strokeRect(10, 10, GAME_WIDTH - 20, GAME_HEIGHT - 20);
 
@@ -630,7 +653,7 @@ function lightenColor(color, percent) {
   ).toString(16).slice(1);
 }
 
-// Draw stickman with Santa hat
+// Draw stickman (with Santa hat during New Year)
 function drawStickman(x, y, color, isVoda) {
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
@@ -642,23 +665,25 @@ function drawStickman(x, y, color, isVoda) {
   ctx.arc(x, y - 25, 10, 0, Math.PI * 2);
   ctx.fill();
 
-  // Santa Hat
-  ctx.fillStyle = '#CC0000';
-  ctx.beginPath();
-  ctx.moveTo(x - 12, y - 28);
-  ctx.lineTo(x + 5, y - 50);
-  ctx.lineTo(x + 14, y - 28);
-  ctx.closePath();
-  ctx.fill();
+  // Santa Hat (only during New Year)
+  if (isNewYear) {
+    ctx.fillStyle = '#CC0000';
+    ctx.beginPath();
+    ctx.moveTo(x - 12, y - 28);
+    ctx.lineTo(x + 5, y - 50);
+    ctx.lineTo(x + 14, y - 28);
+    ctx.closePath();
+    ctx.fill();
 
-  // Hat trim (white)
-  ctx.fillStyle = 'white';
-  ctx.fillRect(x - 14, y - 30, 28, 6);
+    // Hat trim (white)
+    ctx.fillStyle = 'white';
+    ctx.fillRect(x - 14, y - 30, 28, 6);
 
-  // Hat pompom
-  ctx.beginPath();
-  ctx.arc(x + 5, y - 52, 5, 0, Math.PI * 2);
-  ctx.fill();
+    // Hat pompom
+    ctx.beginPath();
+    ctx.arc(x + 5, y - 52, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // Body
   ctx.strokeStyle = color;
@@ -685,12 +710,12 @@ function drawStickman(x, y, color, isVoda) {
   ctx.lineTo(x + 12, y + 35);
   ctx.stroke();
 
-  // Voda crown (golden star for New Year)
+  // Voda indicator
   if (isVoda) {
     ctx.fillStyle = '#FFD700';
     ctx.font = '20px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('⭐', x, y - 60);
+    ctx.fillText(isNewYear ? '⭐' : '👑', x, isNewYear ? y - 60 : y - 40);
 
     // Golden glow
     ctx.strokeStyle = '#FFD700';

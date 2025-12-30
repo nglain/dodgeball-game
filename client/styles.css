@@ -6,15 +6,20 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 100%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   min-height: 100vh;
   color: white;
   overflow: hidden;
   position: relative;
 }
 
-/* Snowfall animation for menu */
-body::before {
+/* New Year theme */
+body.new-year-theme {
+  background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 100%);
+}
+
+/* Snowfall animation for menu (New Year only) */
+body.new-year-theme::before {
   content: '';
   position: fixed;
   top: 0;
@@ -59,9 +64,9 @@ body::before {
 h1 {
   font-size: 3rem;
   margin-bottom: 40px;
-  text-shadow: 0 0 30px rgba(255, 215, 0, 0.7);
+  text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
   letter-spacing: 8px;
-  background: linear-gradient(90deg, #ff0000, #00ff00, #ff0000, #FFD700, #ff0000, #00ff00);
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -69,11 +74,19 @@ h1 {
   background-size: 200% 100%;
 }
 
-h1::before {
+/* New Year h1 style */
+body.new-year-theme h1 {
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.7);
+  background: linear-gradient(90deg, #ff0000, #00ff00, #ff0000, #FFD700, #ff0000, #00ff00);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+body.new-year-theme h1::before {
   content: '🎄 ';
 }
 
-h1::after {
+body.new-year-theme h1::after {
   content: ' 🎄';
 }
 
@@ -88,6 +101,11 @@ h2 {
 }
 
 .new-year-greeting {
+  display: none;
+}
+
+body.new-year-theme .new-year-greeting {
+  display: block;
   font-size: 1.5rem;
   color: #FFD700;
   text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
@@ -114,15 +132,24 @@ h2 {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  background: linear-gradient(135deg, #CC0000 0%, #8B0000 100%);
+  background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
   color: white;
   font-weight: bold;
   transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* New Year button style */
+body.new-year-theme .menu-btn {
+  background: linear-gradient(135deg, #CC0000 0%, #8B0000 100%);
   border: 2px solid #FFD700;
 }
 
 .menu-btn:hover:not(:disabled) {
   transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(78, 205, 196, 0.4);
+}
+
+body.new-year-theme .menu-btn:hover:not(:disabled) {
   box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
   background: linear-gradient(135deg, #228B22 0%, #006400 100%);
 }

@@ -179,6 +179,7 @@ document.querySelectorAll('.num-btn').forEach(btn => {
       roundCount: { min: 1, max: 10 },
       lobbyRoundTime: { min: 15, max: 180 }
     };
+    if (!limits[target]) return;
 
     if (action === 'plus' && value < limits[target].max) {
       value++;
@@ -492,24 +493,35 @@ function render() {
 
   ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-  // Background with gradient
+  // Winter background with gradient
   const gradient = ctx.createLinearGradient(0, 0, GAME_WIDTH, GAME_HEIGHT);
-  gradient.addColorStop(0, '#1a1a2e');
-  gradient.addColorStop(1, '#16213e');
+  gradient.addColorStop(0, '#0a1628');
+  gradient.addColorStop(1, '#1a3a5c');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-  // Field border with rainbow
+  // Draw snowflakes (behind everything)
+  drawSnowflakes();
+
+  // Christmas trees in corners
+  drawChristmasTree(80, 120);
+  drawChristmasTree(GAME_WIDTH - 80, 120);
+  drawChristmasTree(80, GAME_HEIGHT - 80);
+  drawChristmasTree(GAME_WIDTH - 80, GAME_HEIGHT - 80);
+
+  // Field border with festive red/green
   ctx.lineWidth = 4;
   const borderGradient = ctx.createLinearGradient(0, 0, GAME_WIDTH, 0);
-  RAINBOW_COLORS.forEach((color, i) => {
-    borderGradient.addColorStop(i / (RAINBOW_COLORS.length - 1), color);
-  });
+  borderGradient.addColorStop(0, '#FF0000');
+  borderGradient.addColorStop(0.25, '#00FF00');
+  borderGradient.addColorStop(0.5, '#FF0000');
+  borderGradient.addColorStop(0.75, '#00FF00');
+  borderGradient.addColorStop(1, '#FF0000');
   ctx.strokeStyle = borderGradient;
   ctx.strokeRect(10, 10, GAME_WIDTH - 20, GAME_HEIGHT - 20);
 
   // Center line
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
   ctx.lineWidth = 2;
   ctx.setLineDash([10, 10]);
   ctx.beginPath();
@@ -518,10 +530,10 @@ function render() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Center circle
+  // Center circle with snowflake pattern
   ctx.beginPath();
   ctx.arc(GAME_WIDTH / 2, GAME_HEIGHT / 2, 60, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
   ctx.stroke();
 
   // Players
@@ -618,7 +630,7 @@ function lightenColor(color, percent) {
   ).toString(16).slice(1);
 }
 
-// Draw stickman
+// Draw stickman with Santa hat
 function drawStickman(x, y, color, isVoda) {
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
@@ -630,7 +642,26 @@ function drawStickman(x, y, color, isVoda) {
   ctx.arc(x, y - 25, 10, 0, Math.PI * 2);
   ctx.fill();
 
+  // Santa Hat
+  ctx.fillStyle = '#CC0000';
+  ctx.beginPath();
+  ctx.moveTo(x - 12, y - 28);
+  ctx.lineTo(x + 5, y - 50);
+  ctx.lineTo(x + 14, y - 28);
+  ctx.closePath();
+  ctx.fill();
+
+  // Hat trim (white)
+  ctx.fillStyle = 'white';
+  ctx.fillRect(x - 14, y - 30, 28, 6);
+
+  // Hat pompom
+  ctx.beginPath();
+  ctx.arc(x + 5, y - 52, 5, 0, Math.PI * 2);
+  ctx.fill();
+
   // Body
+  ctx.strokeStyle = color;
   ctx.beginPath();
   ctx.moveTo(x, y - 15);
   ctx.lineTo(x, y + 10);
@@ -654,12 +685,12 @@ function drawStickman(x, y, color, isVoda) {
   ctx.lineTo(x + 12, y + 35);
   ctx.stroke();
 
-  // Voda crown
+  // Voda crown (golden star for New Year)
   if (isVoda) {
     ctx.fillStyle = '#FFD700';
-    ctx.font = '16px Arial';
+    ctx.font = '20px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('👑', x, y - 40);
+    ctx.fillText('⭐', x, y - 60);
 
     // Golden glow
     ctx.strokeStyle = '#FFD700';
@@ -668,6 +699,98 @@ function drawStickman(x, y, color, isVoda) {
     ctx.arc(x, y - 5, 30, 0, Math.PI * 2);
     ctx.stroke();
   }
+}
+
+// Draw Christmas tree
+function drawChristmasTree(x, y) {
+  // Tree trunk
+  ctx.fillStyle = '#8B4513';
+  ctx.fillRect(x - 8, y + 30, 16, 20);
+
+  // Tree layers (green triangles)
+  ctx.fillStyle = '#228B22';
+
+  // Bottom layer
+  ctx.beginPath();
+  ctx.moveTo(x - 40, y + 30);
+  ctx.lineTo(x, y - 10);
+  ctx.lineTo(x + 40, y + 30);
+  ctx.closePath();
+  ctx.fill();
+
+  // Middle layer
+  ctx.beginPath();
+  ctx.moveTo(x - 30, y + 5);
+  ctx.lineTo(x, y - 35);
+  ctx.lineTo(x + 30, y + 5);
+  ctx.closePath();
+  ctx.fill();
+
+  // Top layer
+  ctx.beginPath();
+  ctx.moveTo(x - 20, y - 20);
+  ctx.lineTo(x, y - 55);
+  ctx.lineTo(x + 20, y - 20);
+  ctx.closePath();
+  ctx.fill();
+
+  // Star on top
+  ctx.fillStyle = '#FFD700';
+  ctx.font = '24px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('⭐', x, y - 55);
+
+  // Ornaments
+  const ornamentColors = ['#FF0000', '#FFD700', '#0000FF', '#FF69B4'];
+  const ornaments = [
+    { x: x - 15, y: y + 20 },
+    { x: x + 20, y: y + 15 },
+    { x: x - 10, y: y - 5 },
+    { x: x + 12, y: y - 10 },
+    { x: x - 5, y: y - 30 },
+    { x: x + 8, y: y - 25 }
+  ];
+
+  ornaments.forEach((o, i) => {
+    ctx.fillStyle = ornamentColors[i % ornamentColors.length];
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// Draw snowflakes
+let snowflakes = [];
+function initSnowflakes() {
+  snowflakes = [];
+  for (let i = 0; i < 50; i++) {
+    snowflakes.push({
+      x: Math.random() * GAME_WIDTH,
+      y: Math.random() * GAME_HEIGHT,
+      size: Math.random() * 3 + 2,
+      speed: Math.random() * 1 + 0.5
+    });
+  }
+}
+initSnowflakes();
+
+function drawSnowflakes() {
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+  snowflakes.forEach(s => {
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Move snowflake
+    s.y += s.speed;
+    s.x += Math.sin(s.y * 0.02) * 0.5;
+
+    // Reset if off screen
+    if (s.y > GAME_HEIGHT) {
+      s.y = -10;
+      s.x = Math.random() * GAME_WIDTH;
+    }
+  });
 }
 
 // ========== BOT MODE ==========

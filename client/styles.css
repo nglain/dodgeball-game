@@ -6,10 +6,37 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 100%);
   min-height: 100vh;
   color: white;
   overflow: hidden;
+  position: relative;
+}
+
+/* Snowfall animation for menu */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, white, transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(3px 3px at 50px 160px, white, transparent),
+    radial-gradient(2px 2px at 90px 40px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(3px 3px at 130px 80px, white, transparent),
+    radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.8), transparent);
+  background-size: 200px 200px;
+  animation: snowfall 8s linear infinite;
+  z-index: 0;
+}
+
+@keyframes snowfall {
+  0% { background-position: 0 0; }
+  100% { background-position: 100px 200px; }
 }
 
 .screen {
@@ -32,14 +59,22 @@ body {
 h1 {
   font-size: 3rem;
   margin-bottom: 40px;
-  text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.7);
   letter-spacing: 8px;
-  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+  background: linear-gradient(90deg, #ff0000, #00ff00, #ff0000, #FFD700, #ff0000, #00ff00);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: rainbow 3s linear infinite;
   background-size: 200% 100%;
+}
+
+h1::before {
+  content: '🎄 ';
+}
+
+h1::after {
+  content: ' 🎄';
 }
 
 @keyframes rainbow {
@@ -50,6 +85,19 @@ h1 {
 h2 {
   font-size: 1.8rem;
   margin-bottom: 30px;
+}
+
+.new-year-greeting {
+  font-size: 1.5rem;
+  color: #FFD700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  margin-bottom: 30px;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+  to { text-shadow: 0 0 30px rgba(255, 215, 0, 0.9), 0 0 40px rgba(255, 0, 0, 0.5); }
 }
 
 .menu-buttons {
@@ -66,15 +114,17 @@ h2 {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+  background: linear-gradient(135deg, #CC0000 0%, #8B0000 100%);
   color: white;
   font-weight: bold;
   transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid #FFD700;
 }
 
 .menu-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(78, 205, 196, 0.4);
+  box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+  background: linear-gradient(135deg, #228B22 0%, #006400 100%);
 }
 
 .menu-btn:active:not(:disabled) {
